@@ -1,0 +1,414 @@
+:root {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  color: #e5e7eb;
+  background: #09090b;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #09090b;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* Layout */
+
+.container {
+  width: min(100% - 40px, 960px);
+  margin: 0 auto;
+}
+
+/* Header */
+
+.header {
+  border-bottom: 1px solid #1f1f23;
+  background: rgba(9, 9, 11, 0.9);
+}
+
+.header-content {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+}
+
+.nav a {
+  color: #71717a;
+  font-size: 14px;
+  transition: color 0.15s ease;
+}
+
+.nav a:hover {
+  color: #e4e4e7;
+}
+
+/* Hero */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin-top: 56px;
+  padding: 24px;
+
+  border: 1px solid #27272a;
+  border-radius: 10px;
+
+  background: #111113;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.status-indicator.operational {
+  background: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.35);
+}
+
+.status-indicator.degraded {
+  background: #facc15;
+}
+
+.status-indicator.outage {
+  background: #f87171;
+}
+
+.hero h1 {
+  margin: 0 0 5px;
+
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hero p {
+  margin: 0;
+
+  color: #71717a;
+  font-size: 14px;
+}
+
+/* Sections */
+
+.section {
+  margin-top: 48px;
+}
+
+.section-header {
+  margin-bottom: 14px;
+}
+
+.section-header h2 {
+  margin: 0 0 5px;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.section-header p {
+  margin: 0;
+
+  color: #71717a;
+  font-size: 13px;
+}
+
+/* Services */
+
+.services {
+  overflow: hidden;
+
+  border: 1px solid #27272a;
+  border-radius: 10px;
+
+  background: #111113;
+}
+
+.service {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #1f1f23;
+}
+
+.service:last-child {
+  border-bottom: 0;
+}
+
+.service-info {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.service-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.service-dot.operational {
+  background: #4ade80;
+}
+
+.service-dot.degraded {
+  background: #facc15;
+}
+
+.service-dot.outage {
+  background: #f87171;
+}
+
+.service h3 {
+  margin: 0 0 3px;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.service p {
+  margin: 0;
+
+  color: #71717a;
+  font-size: 12px;
+}
+
+.service-status {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-text {
+  font-size: 13px;
+}
+
+.status-text.operational {
+  color: #86efac;
+}
+
+.status-text.degraded {
+  color: #fde047;
+}
+
+.status-text.outage {
+  color: #fca5a5;
+}
+
+.uptime {
+  width: 55px;
+
+  color: #71717a;
+
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Uptime */
+
+.uptime-card {
+  padding: 20px;
+
+  border: 1px solid #27272a;
+  border-radius: 10px;
+
+  background: #111113;
+}
+
+.uptime-row {
+  padding: 8px 0;
+}
+
+.uptime-row + .uptime-row {
+  margin-top: 16px;
+}
+
+.uptime-name {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+
+  font-size: 12px;
+}
+
+.uptime-name span {
+  color: #a1a1aa;
+}
+
+.uptime-name strong {
+  color: #d4d4d8;
+
+  font-weight: 500;
+}
+
+.uptime-bars {
+  display: flex;
+  gap: 2px;
+
+  height: 24px;
+}
+
+.uptime-bar {
+  flex: 1;
+
+  border-radius: 2px;
+  background: #27272a;
+}
+
+.uptime-bar.operational {
+  background: #3f5f48;
+}
+
+.uptime-bar.degraded {
+  background: #655b2f;
+}
+
+.uptime-bar.outage {
+  background: #693b3b;
+}
+
+/* Empty state */
+
+.empty-state {
+  padding: 48px 20px;
+
+  border: 1px solid #27272a;
+  border-radius: 10px;
+
+  background: #111113;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 14px;
+
+  border: 1px solid #3f5f48;
+  border-radius: 50%;
+
+  color: #86efac;
+  font-size: 14px;
+}
+
+.empty-state h3 {
+  margin: 0 0 5px;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.empty-state p {
+  margin: 0;
+
+  color: #71717a;
+  font-size: 13px;
+}
+
+/* Footer */
+
+.footer {
+  margin-top: 80px;
+
+  border-top: 1px solid #1f1f23;
+}
+
+.footer-content {
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #52525b;
+
+  font-size: 12px;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .container {
+    width: min(100% - 24px, 960px);
+  }
+
+  .hero {
+    margin-top: 32px;
+  }
+
+  .service {
+    padding: 16px;
+  }
+
+  .service-status {
+    gap: 10px;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .uptime-bars {
+    gap: 1px;
+  }
+
+  .nav {
+    display: none;
+  }
+}
