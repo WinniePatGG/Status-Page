@@ -1,0 +1,130 @@
+// Prisma schema for the status page.
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+enum ServiceStatus {
+  OPERATIONAL
+  DEGRADED
+  OUTAGE
+}
+
+enum IncidentStatus {
+  INVESTIGATING
+  IDENTIFIED
+  MONITORING
+  RESOLVED
+}
+
+enum IncidentSeverity {
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Service {
+  id                   String        @id @default(cuid())
+  name                 String
+  description          String?
+  url                  String
+  enabled              Boolean       @default(true)
+  /// Check interval in seconds.
+  checkInterval        Int           @default(60)
+  /// Request timeout in milliseconds.
+  timeout              Int           @default(10000)
+  status               ServiceStatus @default(OPERATIONAL)
+  consecutiveFailures  Int           @default(0)
+  consecutiveSuccesses Int           @default(0)
+  lastCheckedAt        DateTime?
+  lastStatusCode       Int?
+  lastResponseTime     Int?
+  lastError            String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  checks               MonitorCheck[]
+  incidents            Incident[]
+
+  @@index([enabled])
+  @@map("services")
+}
+
+/// One row per monitoring request, the source of all uptime numbers.
+model MonitorCheck {
+  id           String   @id @default(cuid())
+  serviceId    String
+  service      Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  success      Boolean
+  statusCode   Int?
+  /// Response time in milliseconds.
+  responseTime Int?
+  error        String?
+  checkedAt    DateTime @default(now())
+
+  @@index([serviceId, checkedAt])
+  @@index([checkedAt])
+  @@map("monitor_checks")
+}
+
+model Incident {
+  id          String           @id @default(cuid())
+  serviceId   String?
+  service     Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  status      IncidentStatus   @default(INVESTIGATING)
+  severity    IncidentSeverity @default(MAJOR)
+  autoCreated Boolean          @default(false)
+  startedAt   DateTime         @default(now())
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  updates     IncidentUpdate[]
+
+  @@index([status])
+  @@index([serviceId])
+  @@index([startedAt])
+  @@map("incidents")
+}
+
+model IncidentUpdate {
+  id         String         @id @default(cuid())
+  incidentId String
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  message    String
+  status     IncidentStatus
+  createdAt  DateTime       @default(now())
+
+  @@index([incidentId, createdAt])
+  @@map("incident_updates")
+}

@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-statuspage}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-statuspage}
+      POSTGRES_DB: ${POSTGRES_DB:-statuspage}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-statuspage} -d ${POSTGRES_DB:-statuspage}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER:-statuspage}:${POSTGRES_PASSWORD:-statuspage}@postgres:5432/${POSTGRES_DB:-statuspage}?schema=public
+      CORS_ORIGIN: http://localhost:8080
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-to-a-long-random-string-at-least-32-chars}
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-7}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-me}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+      MONITOR_FAILURE_THRESHOLD: ${MONITOR_FAILURE_THRESHOLD:-3}
+      MONITOR_RECOVERY_THRESHOLD: ${MONITOR_RECOVERY_THRESHOLD:-3}
+      MONITOR_DEGRADED_RESPONSE_TIME_MS: ${MONITOR_DEGRADED_RESPONSE_TIME_MS:-2000}
+      MONITOR_DEFAULT_CHECK_INTERVAL: ${MONITOR_DEFAULT_CHECK_INTERVAL:-60}
+      MONITOR_DEFAULT_TIMEOUT: ${MONITOR_DEFAULT_TIMEOUT:-10000}
+      MONITOR_RETENTION_DAYS: ${MONITOR_RETENTION_DAYS:-90}
+    expose:
+      - "3000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-statuspage}:${POSTGRES_PASSWORD:-statuspage}@postgres:5432/${POSTGRES_DB:-statuspage}?schema=public
+      MONITOR_FAILURE_THRESHOLD: ${MONITOR_FAILURE_THRESHOLD:-3}
+      MONITOR_RECOVERY_THRESHOLD: ${MONITOR_RECOVERY_THRESHOLD:-3}
+      MONITOR_DEGRADED_RESPONSE_TIME_MS: ${MONITOR_DEGRADED_RESPONSE_TIME_MS:-2000}
+      WORKER_TICK_MS: ${WORKER_TICK_MS:-5000}
+      MONITOR_RETENTION_DAYS: ${MONITOR_RETENTION_DAYS:-90}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+
+volumes:
+  postgres_data:
